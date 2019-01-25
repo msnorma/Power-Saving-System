@@ -5,9 +5,9 @@ use ieee.std_logic_unsigned.all;
 
 entity system is 
 port(
-	switch, Clock, reset, hours, pir2,pir3 									: in std_logic;
-	light_1 , light_3, camera, light_pc, light_g, light_air					: out std_logic; 
-	count_display															: out std_logic_vector(6 downto 0);
+	switch, Clock, reset, hours, pir2,pir3 			: in std_logic;
+	light_1 , light_3, camera, light_pc, light_g, light_air	: out std_logic; 
+	count_display						: out std_logic_vector(6 downto 0);
 	cnt_display																: out std_logic_vector(6 downto 0));
 
 end system;
