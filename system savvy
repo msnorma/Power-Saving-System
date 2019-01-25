@@ -1,0 +1,146 @@
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.std_logic_unsigned.all;
+
+entity system is 
+port(
+	switch, Clock, reset, hours, pir2,pir3 									: in std_logic;
+	light_1 , light_3, camera, light_pc, light_g, light_air					: out std_logic; 
+	count_display															: out std_logic_vector(6 downto 0);
+	cnt_display																: out std_logic_vector(6 downto 0));
+
+end system;
+
+architecture operation of system is
+
+signal scaler : integer range 0 to 5000000 := 0;
+signal result : integer range 0 to 3 :=0; 
+
+begin	
+  process (switch)
+  variable count_1 : integer range 0 to 9:=0;
+
+    begin
+        if rising_edge(switch) then
+  
+            if count_1 = 9 then      
+               count_1 := 0;
+            else
+                count_1 := count_1 +1;
+                end if;
+        end if;              
+
+        case count_1 is
+            when 0   =>count_display <= "1000000";  -- 7E
+            when 1   =>count_display <= "1001111";  -- 30
+            when 2   =>count_display <= "0100100";  -- 6D
+            when 3   =>count_display <= "0110000";  -- 79
+            when 4   =>count_display <= "0011001";  -- 33
+            when 5   =>count_display<=  "0010010";  -- 5B
+            when 6   =>count_display <= "0000010";  -- 5F
+            when 7   =>count_display <= "1111000";  -- 70
+            when 8   =>count_display <= "0000000";  -- 7F
+            when 9   =>count_display <= "0010000";  -- 7B
+        end case;
+        
+        
+--        --Switch on camera and lights
+--        if(count_1 > 0) then
+--        light_1 <= '1'; --ledg1
+--        camera	<= '1';--ledg0
+--        else
+--        light_1 <= '0';
+--        camera <= '0';
+--        end if;
+        
+        if (count_1 > 0) then 
+	--IF(Clock'EVENT AND Clock= '1') THEN
+		if (scaler < 5000000) then
+			scaler <= scaler+1;
+			light_pc <= '1';
+		else scaler <=0;
+			light_pc <= '0';
+		end if;
+		
+		if (scaler = 0) then
+			if (result <3) then
+				result <= result +1;
+				light_g <= '1'; --u22
+			else 
+				light_g <= '0';
+				result <=1;
+			end if;
+		end if;
+		
+		if (scaler = 50) then
+			if (result <3) then
+				result <= result +1;
+				light_air <= '1';
+			else 
+				light_air <= '0';
+				result <=1;
+			end if;
+		end if;
+		
+		else
+			light_pc <= '0';
+			light_g <= '0';
+			light_air <= '0';
+        end if;
+        end process;
+        
+        
+  process (pir2)
+  variable count_2 : integer range 0 to 9:=0;
+
+  begin
+        if rising_edge(pir2) then
+  
+            if count_2 = 9 then      
+               count_2 := 0;
+            else
+                count_2 := count_2 +1;
+            end if;
+         end if;              
+
+        case count_2 is
+            when 0   =>cnt_display <= "1000000";  -- 7E
+            when 1   =>cnt_display <= "1001111";  -- 30
+            when 2   =>cnt_display <= "0100100";  -- 6D
+            when 3   =>cnt_display <= "0110000";  -- 79
+            when 4   =>cnt_display <= "0011001";  -- 33
+            when 5   =>cnt_display<=  "0010010";  -- 5B
+            when 6   =>cnt_display <= "0000010";  -- 5F
+            when 7   =>cnt_display <= "1111000";  -- 70
+            when 8   =>cnt_display <= "0000000";  -- 7F
+            when 9   =>cnt_display <= "0010000";  -- 7B
+        end case;
+        end process;
+         
+process (pir3)
+variable count_3 : integer range 0 to 9:=0;
+
+    begin
+        if rising_edge(pir3) then
+  
+            if count_3 = 9 then      
+               count_3 := 0;
+            else
+                count_3 := count_3 +1;
+                light_3 <= '1';
+            end if;
+         end if; 
+         
+          --Switch on camera and lights
+        if(count_3 > 0) then
+			light_1 <= '1'; --ledg1
+			camera	<= '1';--ledg0
+        else
+			light_1 <= '0';
+			camera <= '0';
+        end if;   
+        end process;
+        
+end operation;
+
